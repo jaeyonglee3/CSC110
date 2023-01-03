@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+
+\title{CSC110 Fall 2022 Assignment 1: Written Questions}
+\author{Jaeyong Lee}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Part 1: Data and Comprehensions}
+
+\begin{enumerate}
+\item[1.] \textbf{Imagine this scenario...}
+\begin{enumerate}
+\item[(a)] (The total amount of money you're planning to spend on your trip.)
+
+A float would best represent this data since our budget would be expressed in dollars and there may be a decimal point.
+
+\item[(b)] (The restaurant names in your sister's ``top ten restaurants'' message, in the order of her preferences.)
+
+A list where the elements are strings of the names of the restaurants would be ideal in this scenario. A list is chosen over a set because lists maintain order, which is important since the restaurants are ordered in terms of preference. 
+
+\item[(c)] (The number of places you are staying that have laundry service.)
+
+An integer could be used to represent this data as the number of places will be a whole number. A float is not necessary. 
+
+\item[(d)] (The names of the cities you will be visiting and the corresponding number of days you are staying in each city.)
+
+A dictionary would be ideal in this case because we need to associate each city with a number of days we plan to stay. So, the keys would be name of the city (a string) and the values would be the number of days we plan to stay (an integer). 
+
+\item[(e)] (Whether or not you have a valid passport.)
+
+The boolean data type will be ideal here. This is because the question "is my passport valid" can be answered with either true or false. 
+\end{enumerate}
+
+\item[2.] \textbf{Exploring comprehensions.}
+
+\begin{enumerate}
+\item[(a)]
+\begin{enumerate}
+    \item[i.] ['B', 'l', 'u', 'e', 'b', 'e', 'r', 'r', 'y']
+    \item[ii.] This is a list and each of its elements are strings. 
+\end{enumerate}
+\item[(b)]
+\begin{enumerate}
+    \item[i.] \{'B', 'l', 'b', 'y', 'e', 'r', 'u'\}
+    \item[ii.] This is a set and each of its elements are strings. 
+    \item[iii.] In terms of size, the set is smaller since it does not contain any duplicate elements. The elements themselves are also in different order than the list because in a set, order does not matter.  
+\end{enumerate}
+\item[(c)]
+Expression 1 evaluates to ['David!', 'Tom!', 'Mario!'] and expression 2 evaluates to ['David', 'Tom', 'Mario', '!', '!', '!']. Their values are different because while the former contains a string concatenation in its expression (each name is concatenated with '!'), the latter is concatenating two separate comprehensions to return one list. The two lists are the identity comprehension (which returns the list as is) and a comprehension that is returning a list that contains a '!' for every name in the list names. Expressions 1 and 2 evaluate very differently.  
+\end{enumerate}
+\end{enumerate}
+
+\section*{Part 2: Programming Exercises}
+
+Complete this part in the provided \texttt{a1\_part2.py} starter file.
+Do \textbf{not} include your solution in this LaTeX file.
+
+\section*{Part 3: Pytest Debugging Exercise}
+
+% TIP: In LaTeX, the underscore (_) is a special character, so if you want to use it
+% in normal text, you have to put a backslash in front of it. E.g., a1\_part2.py,
+% not a1_part2.py.
+
+\begin{enumerate}
+\item[1.]
+test\_two\_customers failed, test\_just\_food failed, and test\_single\_bill passed
+
+\item[2.]
+The test test\_two\_customers raises a KeyError because of an issue in the test itself. In the assignment statement for the list 'bills,' the keys 'Food' and 'Songs' have capitalized first letters. This causes an error because the function get\_largest\_bill calls calculate\_total\_cost and tries to pass in parameters by performing a key lookup for 'food' and 'songs' where the first letters are lowercase. When the Python interpreter is unable to find those keys, a KeyError is raised, meaning the program tried accessing keys in the dictionary that do not exist. Thus, the test fails. 
+
+The test test\_just\_food raises an AssertionError, meaning the actual test result did not match the expected result. This occurs because the function calculate\_total\_cost is written so that it takes menu\_amount as the first parameter and then the number of songs. However, when we call this function from the body of get\_largest\_bill, we pass in the number of songs first and then the menu amount, which is the incorrect order. The reason we get a result different from the expected result is because the program treated the food bills as the numbers of songs sang. 
+
+\item[3.]
+The test test\_single\_bill passed because in that test, the bill has 10 as both the food bill and the number of songs sang. So although there are errors in the code, this test still passes because in this case, it does not matter which number gets passed in first into the function since the numbers are the same. 
+\end{enumerate}
+
+\section*{Part 4: Colour Rows}
+
+Complete this part in the provided \texttt{a1\_part4.py} starter file.
+Do \textbf{not} include your solution in this LaTeX file.
+
+\section*{Part 5: Working with Image Data}
+
+Complete this part in the provided \texttt{a1\_part5.py} starter file.
+Do \textbf{not} include your solution in this LaTeX file.
+
+\end{document}

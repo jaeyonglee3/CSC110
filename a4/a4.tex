@@ -1,0 +1,337 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{minted}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+
+% This defines a new LaTeX *macro* (you can think of as a function)
+% for writing the floor of an expression.
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+
+\title{CSC110 Fall 2022 Assignment 4: Number Theory, Cryptography, and Algorithm Running Time Analysis}
+\author{Jaeyong Lee}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\section*{Part 1: Proofs}
+
+\begin{enumerate}
+\item[1.] Statement to prove:
+$\forall a, b, n \in \mathbb{Z},~ \big(n \neq 0 \land a \equiv b \pmod n \big) \Rightarrow \big(\forall m \in \mathbb{Z},~ a \equiv b + mn \pmod n\big)$
+
+\begin{proof}
+Expanding the statement: \\
+
+$\forall a, b, n \in \mathbb{Z},~ \big(n \neq 0 \land n|a - b \big) \Rightarrow \big(\forall m \in \mathbb{Z},~ n | a - b - mn\big)$ \\
+$\forall a, b, n \in \mathbb{Z},~ \big(n \neq 0 \land \exists k_1 \in \mathbb{Z},~ a-b=k_1n \big) \Rightarrow \big(\forall m \in \mathbb{Z},~ \exists k_2 \in \mathbb{Z},~ a-b-mn=k_2n\big)$ \\
+
+Let $a, b, n \in \mathbb{Z}$. Assume $n \neq 0$ and assume $\exists k_1 \in \mathbb{Z},~ a-b=k_1n$ \\
+
+Let $m \in \mathbb{Z}$. \\
+We wish to show that $\exists k_2 \in \mathbb{Z},~ a-b-mn=k_2n$ \\ 
+
+Take $k_2 = k_1 - m$. Then,\\ 
+$a-b=k_1n$ \\
+$a - b - mn = k_1n - mn$ \\
+$a-b-mn = n(k_1 - m)$
+
+$a-b-mn = k_2n$\\
+
+Therefore, we've shown that $\forall m \in \mathbb{Z},~ \exists k_2 \in \mathbb{Z},~ a-b-mn=k_2n$, as required 
+
+\end{proof}
+
+\newpage
+
+\item[2.] Statement to prove:
+$
+\forall f, g: \mathbb{N} \to \mathbb{R}^{\geq 0},~
+\Big(g \in \mathcal{O}(f) \land \big(\forall m \in \mathbb{N},~ f(m) \geq 1) \Big) \Rightarrow
+g \in \mathcal{O}(\floor{f})
+$
+
+\begin{proof}
+Expand the statement: \\
+$
+\forall f, g: \mathbb{N} \to \mathbb{R}^{\geq 0},~
+\Big(\exists c_1, n_1 \in \mathbb{R}^+, \forall n \in \mathbb{N}, n \geq n_1 \Rightarrow g(n) \le f(n) • c_1 \wedge (\forall m \in \mathbb{N}, f(m) \geq 1)\Big) \Rightarrow \Big(\exists c_2, n_2 \in \mathbb{R}^+, \forall n \in \mathbb{N}, n \geq n_2 \Rightarrow g(n) \le c_2 • \floor{f(n)} \Big)
+$ \\
+
+Let $f, g: \mathbb{N} \to \mathbb{R}^{\geq 0}$ \\
+
+Assume $\exists c_1, n_1 \in \mathbb{R}^+$ such that $\forall n \in \mathbb{N}$, $n \geq n_1 \Rightarrow g(n) \le f(n) • c_1$\\ 
+
+Assume $\forall m \in \mathbb{N}, f(m) \geq 1$ \\
+
+Let $c_2 = 2c_1$ and Let $n_2 = n_1$ \\ 
+
+Let $n \in \mathbb{N}$ and assume $n \ge n_2$ 
+
+We wish to show that: $g(n) \leq c_2 \floor{f(n)}$ \\
+
+From our assumption, recall that $\forall n \in \mathbb{N}, f(n) \ge 1$. From this, we know that $\forall n \in \mathbb{N}, \floor{f(n)} \ge 1$ \\ 
+
+Also consider the following property of the floor function which states that: 
+
+$\floor{f(n)} \le f(n) < \floor{f(n)}+1$ \\
+
+So, we know that $f(n) < \floor{f(n)} + 1$ \\
+Since $\floor{f(n)} \ge 1$, it is also true that $f(n) < \floor{f(n)} + \floor{f(n)}$ \\
+
+Then, \\
+$f(n) < 2 \floor{f(n)}$ \\
+$g(n) \leq c_1f(n) < 2c_1 \floor{f(n)}$ \\
+$g(n) < 2c_1 \floor{f(n)}$ \\
+$g(n) < c_2 \floor{f(n)}$, (since $2c_1 = c_2$) \\
+
+Therefore, we have shown that $g(n) \leq c_2 \floor{f(n)}$ as needed.  
+
+\end{proof}
+\end{enumerate}
+
+\newpage
+
+
+\section*{Part 2: Running-Time Analysis}
+
+\begin{enumerate}
+\item[1.]
+Function to analyse:
+
+\begin{verbatim}
+def f1(n: int) -> int:
+    """Precondition: n >= 0"""
+    total = 0
+
+    for i in range(0, n):  # Loop 1
+        total += i ** 2
+
+    for j in range(0, total):  # Loop 2
+        print(j)
+
+    return total
+\end{verbatim}
+
+Let n be the integer input 
+\begin{itemize}
+  \item The assignment statement total = 0 takes 1 step (constant time)
+  \item The first for loop takes n iterations, and each iteration is 1 step. 
+  \begin{itemize}
+      \item We know that after each iteration of loop 1, the variable total is reassigned to be itself plus the value of i squared. In other words, the variable total is summing up consecutive squares starting from 0 up to but not including n. After loop 1 finishes, by the provided sum of consecutive squares summation formula, we know that total = $\frac{n(n+1)(2n+1)}{6}$. 
+  \end{itemize}
+  \item With this information, we know that the second for loop takes $\frac{n(n+1)(2n+1)}{6}$ iterations, and each iteration is one step.
+  \item Lastly, the return statement takes one step (constant time). 
+\end{itemize}
+
+So, the total running time of the first loop is n, which is $\theta (n)$ \\
+The total running time of the second loop is $\frac{n(n+1)(2n+1)}{6}$, which is $\theta (n^3)$ \\
+
+When we put it all together $RT_{f1}(n) = 1 + n + \frac{n(n+1)(2n+1)}{6} + 1$. \\
+
+By the sum of functions theorem, we can conclude that $RT_{f1}(n)\in \theta (n^3)$
+
+
+
+\newpage
+
+
+\item[2.]
+Function to analyse:
+
+\begin{verbatim}
+def f2(n: int) -> int:
+    """Precondition: n >= 0"""
+    sum_so_far = 0
+
+    for i in range(0, n):  # Loop 1
+        sum_so_far += i
+
+        if sum_so_far >= n:
+            return sum_so_far
+
+    return 0
+\end{verbatim}
+
+Let n be the integer input \\
+
+Since the running time expression is different when $n<5$ and when $n\ge5$, we will analyze the running time for these two cases separately. \\
+
+Case 1: $n<5$
+\begin{itemize}
+  \item The assignment statement sum\_so\_far = 0 takes 1 step (constant time)
+  \item The for loop runs for n iterations with 1 step per iteration 
+  \item The return statement takes 1 step 
+\end{itemize}
+
+So, for case 1, the total number of steps is 1 + n + 1, which is $\theta (n)$ \\
+
+Case 2: $n\ge5$
+\begin{itemize}
+  \item The assignment statement sum\_so\_far = 0 takes 1 step (constant time).
+  \item The loop body takes 1 step (constant time) but the number of iterations must be calculated. Since at each iteration, the variable sum\_so\_far is reassigned to equal itself plus the current value of i, the sum of consecutive numbers summation formula may be useful to figure out the number of iterations it would take for sum\_so\_far to be greater than or equal to n since that is the condition that will stop the loop.  
+\end{itemize}
+
+By the provided sum of consecutive numbers summation formula, we know that $i_k = \frac{k(k+1)}{2}$ 
+
+We want $i_k \ge n$ \\
+
+$\frac{k(k+1)}{2} \ge n$
+
+$k^2 + k \ge 2n$
+
+$k^2 + k - 2n \ge 0$
+
+$k \ge \frac{-1 \pm \sqrt{1^2 - 4(1(-2n))}}{2}$ 
+
+
+So we need to find the smallest value of k such that $k \ge \frac{-1 \pm \sqrt{1^2 - 4(1(-2n))}}{2}$ 
+
+This is exactly the definition of the ceiling function, and so the smallest value of $k$ is $\lceil \frac{-1 + \sqrt{1 + 8n}}{2} \rceil$ 
+
+*Note in the step above, we took the positive of the quadratic equation as we must ensure that $k\in \mathbb{N}$. We also took the ceiling of this expression because we need the smallest value of k that satisfies this inequality \\
+
+Thus, the total number of steps for case 2 is $1 + \lceil \frac{-1 + \sqrt{1 + 8n}}{2} \rceil + 1$, which is $\theta (\sqrt{n})$. Since the definition of Theta includes an $n_0$, we will take the final Theta expression from our $n \ge 5$ case. 
+
+So, $RT_{f2}(n)\in \theta (\sqrt{n})$
+
+
+
+\end{enumerate}
+
+\newpage
+
+\section*{Part 3: Extending RSA}
+
+Complete this part in the provided \texttt{a4\_part3.py} starter file.
+Do \textbf{not} include your solutions in this file.
+
+\section*{Part 4: Digital Signatures}
+
+\subsection*{Part (a): Introduction}
+
+Complete this part in the provided \texttt{a4\_part4.py} starter file.
+Do \textbf{not} include your solutions in this file.
+
+\subsection*{Part (b): Generalizing the message digests}
+
+Complete most of this part in the provided \texttt{a4\_part4.py} starter file.
+Do \textbf{not} include your solutions in this file, \emph{except} for the following two questions:
+
+\begin{enumerate}
+
+\item[3b.]
+
+\begin{verbatim}
+def find_collision_len_times_sum(message: str) -> str:
+\end{verbatim}
+
+\begin{minted}[breaklines]
+def find_collision_len_times_sum(message: str) -> str:
+    """Return a new message, not equal to the given message, that can be verified using the same signature
+    when using the RSA digital signature scheme with the len_times_sum message digest.
+
+    Preconditions:
+    - len(message) >= 2
+    - any({ord(c) < 1114111 for c in message})
+
+    >>> rsa_sign((23, 59, 115), len_times_sum, 'Soccer is my favourite')
+    365
+    >>> rsa_verify((1357, 1043), len_times_sum, find_collision_len_times_sum('Soccer is my favourite'), 365)
+    True
+    """
+\end{minted}
+
+\begin{verbatim}
+    if all(x == chr(0) for x in message):
+        return message + chr(0)
+    else:
+        digits = [ord(c) for c in message]
+        found1, found2 = False, False
+        i = 0
+
+        while not found1 or not found2:
+            if digits[i] >= 1 and not found1:
+                digits[i] -= 1
+                found1 = True
+
+            elif not found2:
+                digits[i] += 1
+                found2 = True
+            i += 1
+
+        return ''.join([chr(x) for x in digits])
+\end{verbatim}
+
+This algorithm works by first checking whether the given message is made up of all chr(0) characters. If such is the case, we will return the same message but with an additional chr(0) character appended to it, which would ensure that the new message is not equal to the input message (because they will have different lengths) and the len\_times\_sum message digest of the new message is equal to that of the input message (they will both be zero since the sum of both their ord values are zero). This ensures that the new message can be verified using the same signature as the input message when using the RSA digital signature scheme with the len\_times\_sum message digest. \\
+
+If the given message is not made up of all chr(0) characters, we begin to iterate through the list \textit{digits}, made up of the ord value of each character in the input message. As we iterate, we will mutate the list \textit{digits} in two ways: 
+
+\begin{itemize}
+  \item Find one value in the list \textit{digits} that is greater than or equal to one and subtract 1 from it 
+  \item Add 1 to one value in the list \textit{digits}
+\end{itemize}
+
+Then, we will return a string that is the joined chr values of our mutated list \textit{digits}. This process is correctly able to find a collision because the two mutations do not change the length of the list \textit{digits}. They also do not change the sum of ord values since we are adding 1 to one of them but also subtracting 1 from one of them. So, since the len\_times\_sum message digest relies only on the length and sum of ord values of messages, the new message that we return can surely be verified using the same signature as the input message. 
+
+\newpage
+
+\item[4b.]
+
+\begin{verbatim}
+def find_collision_ascii_to_int(public_key: tuple[int, int], message: str) -> str:
+\end{verbatim}
+
+\begin{minted}[breaklines]
+def find_collision_ascii_to_int(public_key: tuple[int, int], message: str) -> str:
+    """Return a new message, distinct from the given message, that can be verified using the same signature,
+    when using the RSA digital signature scheme with the ascii_to_int message digest and the given public_key.
+
+    The returned message must contain only ASCII characters, and cannot contain any leading chr(0) characters.
+
+    Preconditions:
+    - signature was generated from message using the algorithm in rsa_sign and digest ascii_to_int,
+      with a valid RSA private key
+    - len(message) >= 2
+    - ord(message[0]) > 0
+
+    NOTES:
+        - Unlike the other two "find_collision" functions, this function takes in the public key
+          used to generate signatures. Use it!
+        - You may NOT simply add leading chr(0) characters to the message string.
+          (While this does correctly produces a collision, we want you to think a bit harder
+          to come up with a different approach.)
+        - You may find it useful to review Part 1, Question 1.
+
+    >>> rsa_sign((13, 41, 371), ascii_to_int, 'Pizza is so yummy!')
+    419
+    >>> rsa_verify((533, 251), ascii_to_int, find_collision_ascii_to_int((533, 251), 'Pizza is so yummy!'), 419)
+    True
+    """
+\end{minted}
+
+\begin{verbatim}
+    n = public_key[0]
+    target = ascii_to_int(message) + n
+    return ''.join([chr(c) for c in a4_part3.int_to_base128(target)])
+\end{verbatim}
+
+
+This algorithm works by first calculating a number and assigning it to the variable "target." We calculate this number to be the ascii\_to\_int message digest of the input message plus the n value of the public key. This is based on the following statement:
+
+\begin{itemize}
+  \item $\forall a, n, m \in \mathbb{Z},~  \big(a \equiv a + mn \pmod n\big)$
+  \begin{itemize}
+      \item So, ascii\_to\_int(message + n) \% n == ascii\_to\_int(message) \% n
+  \end{itemize}
+\end{itemize}
+
+This modular equivalence ensures that a message generated by taking the chr values of the list returned by the int\_to\_base128 conversion of our "target" integer can be verified using the same signature as the input message (the return statement returns just that, the list of chr values joined using the str.join method). This is so because rsa\_sign with the ascii\_to\_int digest involves raising the message digest to a certain power (the d value of the private key) and then returning that value modulo n. The ascii\_to\_int digest of the original message and the ascii\_to\_int digest of the new message generated by this aglorithm have the same remainder on division by n, and therefore can both be verified using the same signature. 
+
+\end{enumerate}
+\end{document}
