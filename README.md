@@ -1,1 +1,1 @@
-## CSC110 @ UofT
+## UofT CSC110 
